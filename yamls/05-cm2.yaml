@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  app.config: |
+    source.env=PROD
+    source.dir=/root
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: app-config-from-file

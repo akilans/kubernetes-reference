@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpd-frontend
+spec:
+  template:
+    metadata:
+      name: httpd-pod
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: httpd-container
+          image: httpd
+      serviceAccountName: my-sa
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
