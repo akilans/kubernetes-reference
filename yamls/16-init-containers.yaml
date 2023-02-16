@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache-init-volume-example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apache
+  template:
+    metadata:
+      labels:
+        app: apache
+    spec:
+      initContainers:
+        - image: busybox
+          name: busbox-container
+          command: ["/bin/sh"]
+          args: ["-c", "echo '<h1>Hello Akilan</h1>' > /apache-data/index.html"]
+          volumeMounts:
+            - mountPath: /apache-data
+              name: src-volume
+      containers:
+        - image: httpd
+          name: test-apache
+          volumeMounts:
+            - mountPath: /usr/local/apache2/htdocs
+              name: src-volume
+      volumes:
+        - name: src-volume
+          emptyDir: {}

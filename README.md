@@ -214,6 +214,26 @@ kubectl set image deployment/frontend simple-webap=kodekloud/webapp-color:v2
 
 ### Jobs and CronJobs
 
+- refer 13-job.yaml & 14-cron-job.yaml
+
 ```bash
 kubectl create cronjob throw-dice-cron-job --image kodekloud/throw-dice --schedule "30 21 * * *" --dry-run=client -o yaml
+```
+
+### Service & Networking policy
+
+- Refer 17-svc.yaml
+- Refer 18-nw-policy.yaml
+
+```bash
+# ClusterIP, NodePort and LoadBalancer
+# NodePort range 30000 to 32767
+```
+
+### Ingress controller and Ingress
+
+- Install ingress nginx controller - https://github.com/kubernetes/ingress-nginx/
+
+```bash
+kubectl create ingress ingress-test --rule="wear.my-online-store.com/wear*=wear-service:80"
 ```

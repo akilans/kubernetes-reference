@@ -1,0 +1,16 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: test-cron-job
+spec:
+  schedule: "* * * * *"
+  suspend: False
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - image: busybox
+              name: test-cron-container
+              command: ["echo", "Akilan"]
+          restartPolicy: Never
