@@ -237,3 +237,84 @@ kubectl create cronjob throw-dice-cron-job --image kodekloud/throw-dice --schedu
 ```bash
 kubectl create ingress ingress-test --rule="wear.my-online-store.com/wear*=wear-service:80"
 ```
+
+### PV, PVC, storage classes
+
+- refer 20-hostpath-volume.yaml, 21-pv.yaml, 22-pvc.yaml and 23-pod-pvc.yaml files under yamls
+- With storage classes admin no need to create pv manually. It automatically creates pv
+- refer 24-storage-class-pvc.yaml, 26-storage-class.yaml
+
+### Kubernetes Security
+
+- Authentication - Who can access the cluster
+- Authorization - What they can do on cluster
+
+- Username and password based authentication was there in k8s till 1.19 but that is no longer supported
+- static file - password,user1,u001
+- static toke - HGIYUGUIOHGIUGYUIFGIYUIO,user1,u001
+- pass the file while starting kube-apiserver with --basic-auth-file
+
+```bash
+curl -v -k https://localhost:6443/api/v1/pods -u "user1:password123
+```
+
+### Kubeconfig
+
+- 3 important parts of kubeconfig clusters - contexts - users
+
+```bash
+kubectl config --help
+kubectl config view # view kube config file ~/.kube/config
+kubectl config view --kubeconfig=/home/akilan/config #custom config
+kubectl config current-context # view current context
+kubectl use-context minikube # change the cluster
+kubectl config get-clusters # {users,contexts} # get all the clusters
+# change default namespace
+kubectl config set-context --current --namespace=my-namespace
+# switch to different context
+kubectl config use-context research
+```
+
+### Authorization - Role, Role bindings, Cluster role and Cluster role bindings
+
+```bash
+kubectl proxy # proxy kubernetes API to localhost
+curl http://localhost:8001/version
+# check --authorization-mode=Node,RBAC
+kubectl describe pod -n kube-system kube-apiserver-controlplane
+kubectl auth can-i create pod --namespace default
+kubectl create role pod-manager --verb=get,list,watch,delete,patch,update --resource=pods
+kubectl create role deployment-manager --verb=get,list,watch,delete,patch,update --resource=deployments
+kubectl auth can-i list pods --namespace default --as dev-user
+kubectl create role developer --resource=pods --verb=list,create,delete
+kubectl create rolebinding dev-user-binding --role developer --user dev-user --dry-run=client
+kubectl create clusterrole storage-admin --resource=persistentvolumes,storageclasses --verb=get,list,create,delete,update
+kubectl create clusterrolebinding michelle-storage-admin --clusterrole storage-admin --user michelle
+```
+
+### Admission Controller
+
+- An admission controller is a piece of code that intercepts requests to the Kubernetes API server prior to persistence of the object, but after the request is authenticated and authorized.
+- Admission controllers may be validating, mutating, or both. Mutating controllers may modify related objects to the requests they admit; validating controllers may not.
+- RBAC is good but if we need more control such as
+  all resources should have labels,
+  container should not run as root,
+  Should not use images from docker hub,
+  all pods should have liveness and readiness probe etc, we need admission controller
+- Better security controls
+- If you create a resource under a namespace which doesn't exist throws an error by default
+- Enable NamespaceAutoProvision admission controller to create a new one if doesn't exists
+- kube-apiserver --enable-admission-plugins=NamespaceLifecycle,LimitRanger ...
+- kube-apiserver -h | grep enable-admission-plugins
+- kube-apiserver -h | grep disable-admission-plugins
+- ps -ef | grep kube-apiserver | grep admission-plugins
+- kubectl create secret tls webhook-server-tls --cert /root/keys/webhook-server-tls.crt --key /root/keys/webhook-server-tls.key -n webhook-demo
+
+### Extra
+
+```bash
+kubectl api-resources # lists all resources with short names,api versions, namespace scope etc
+kubectl proxy 8001&
+curl localhost:8001/apis/authorization.k8s.io
+kubectl convert -f ingress-old.yaml --output-version networking.k8s.io/v1 > ingress-new.yaml
+```
